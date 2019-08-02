@@ -1,0 +1,346 @@
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<script src="d3-tip.js"></script>
+<style> circle {fill: lightblue; stroke: black;}
+rect {fill: lightblue; stroke: black; }
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: orangered ;
+}
+.btn-group button {
+  background-color: #4CAF50; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #3e8e41;
+}
+
+#tooltip {
+  opacity: 0;
+  position: absolute;
+  text-align: center;
+  width: 100px; height:70px;
+  background: lightblue;
+  border: 0px;
+}
+
+ </style>
+<div class="btn-group">
+  <button onclick="init()" >Engine Cylinders vs Horsepower</button>
+  <button onclick="driveTrainCityMpg()">Average Highway </button>
+  <button onclick="priceHp()">Price vs Horsepower</button>
+</div>
+<h1> </h1>
+<body onload='init()'>
+<svg width=500 height=500 class="chart" >
+
+</svg>
+<div id="tooltip">
+ <span class="tooltiptext">Tooltip text</span>
+</div>
+<script>
+
+async function driveTrainCityMpg() {
+const data = await d3.csv('https://raw.githubusercontent.com/VaijanathB/vj.github.io/master/automobile-dataset/Automobile_data.csv')
+
+var cyl2 = data.filter(data => data.EngineCylinders === "2");
+var sumAvg = cyl2.map(function(d){return d.highwaympg}).map(Number);
+var avg2 = sumAvg.reduce((a,b) => a + b, 0) /cyl2.length;
+
+var cyl3 = data.filter(data => data.EngineCylinders === "3");
+var sumAvg = cyl3.map(function(d){return d.highwaympg}).map(Number);
+var avg3 = sumAvg.reduce((a,b) => a + b, 0)/cyl3.length;
+
+var cyl4 = data.filter(data => data.EngineCylinders === "4");
+var sumAvg = cyl4.map(function(d){return d.highwaympg}).map(Number);
+var avg4 = sumAvg.reduce((a,b) => a + b, 0)/cyl4.length;
+
+var cyl5 = data.filter(data => data.EngineCylinders === "5");
+var sumAvg = cyl5.map(function(d){return d.highwaympg}).map(Number);
+var avg5 = sumAvg.reduce((a,b) => a + b, 0)/cyl5.length;
+
+var cyl6 = data.filter(data => data.EngineCylinders === "6");
+var sumAvg = cyl6.map(function(d){return d.highwaympg}).map(Number);
+var avg6 = sumAvg.reduce((a,b) => a + b, 0)/cyl6.length;
+
+var cyl8 = data.filter(data => data.EngineCylinders === "8");
+var sumAvg = cyl8.map(function(d){return d.highwaympg}).map(Number);
+var avg8 = sumAvg.reduce((a,b) => a + b, 0)/cyl8.length;
+
+var cyl12 = data.filter(data => data.EngineCylinders === "12");
+var sumAvg = cyl12.map(function(d){return d.highwaympg}).map(Number);
+var avg12 = sumAvg.reduce((a,b) => a + b, 0)/cyl12.length;
+
+var datatotal = [avg2, avg3, avg4, avg5, avg6, avg8, avg12]
+
+var cylinders = [2,3,4,5,6,8,12]
+datamax = Math.max(datatotal);
+console.log(datamax)
+console.log(datatotal)
+
+var dmx = 53
+var height = 400
+var width = 450
+var margin = 50
+
+// Create Tooltips
+  
+var x = d3.scaleBand().domain([1,2,3,4,5,6,7,8,9, 10, 11, 12]).range([0, 400])
+var y = d3.scaleLinear().domain([0,53]).range([400 ,0])
+
+    d3.select("svg").selectAll("*").remove();
+   var tooltip = d3.select("#tooltip");
+ 
+    d3.select("svg").append("g")
+    .attr("transform", "translate("+margin+","+margin+")")
+    .selectAll("rect")
+    .data(datatotal)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d, i){return x(cylinders[i])})
+    .attr("width", function(d, i){return 400/12})
+    .attr("height", 50)
+    .on('mouseover', function (d, i) {
+      tooltip.html(
+				 "Average MPG for "+cylinders[i]+" cylinders is "+parseInt(datatotal[i]) )	 
+         .style("opacity", 1)
+         .style("display", "block")
+				.style("left", (d3.event.pageX) + "px")			 
+				.style("top", (d3.event.pageY) + "px")
+        .style("background", "lightblue")
+   
+    })
+    .on('mouseout', function(d, i){
+       tooltip.transition().delay(1000).style("opacity", 0);
+   })
+    .transition().duration(3000 )
+    .attr("y", function(d){return y(d)})
+    .attr("height", function(d,i){return y(dmx-d)});
+    
+
+
+    d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+margin+","+margin+")")
+    .call(d3.axisLeft(y));
+    d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+margin+","+(margin+height)+")")
+    .call(d3.axisBottom(x)) ;
+
+ d3.select("svg").append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", 200)
+    .attr("y", 490)
+    .style("text-anchor", "middle")
+    .text("Average Highway MPG for different EngineCylinders");
+
+
+
+d3.select("svg").append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("x", -200)
+    .style("text-anchor", "middle")
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Average Highway Mpg");   
+
+}
+
+async function priceHp() {
+
+const data = await d3.csv('https://raw.githubusercontent.com/VaijanathB/vj.github.io/master/automobile-dataset/Automobile_data.csv')
+
+var horsepower = data.map(function(d){return d.horsepower}).map(Number);
+var price = data.map(function(d){return d.price}).map(Number);
+
+var cylinders = data.map(function(d){return d.highwaympg}).map(Number);
+
+
+xdomain = [5000, 50000];
+ydomain = [30, 300];
+
+xs = d3.scaleLog().base(10).domain(xdomain).range([0, 400]);
+ys = d3.scaleLog().base(10).domain(ydomain).range([400, 0]);
+
+
+var margin = 50
+
+console.log("Initcalled")
+
+  d3.select("svg").selectAll("*").remove();
+
+  var tooltip = d3.select("#tooltip");
+ 
+d3.selectAll("svg").append("g")
+.attr("transform", "translate("+margin+","+margin+")")
+.selectAll("circle")
+.data(data)
+.enter()
+.append("circle")
+.attr("cx", function (d, i){return xs(d.price);})
+.attr("cy", 0)
+.attr("r", function(d, i){return  5 ;})
+ .on('mouseover', function (d, i) {
+      tooltip.html(
+				 "Make :"+d.make+" Price :"+d.price)	 
+         .style("opacity", 1)
+         .style("display", "block")
+				.style("left", (d3.event.pageX) + "px")			 
+				.style("top", (d3.event.pageY) + "px")
+        .style("background", "lightblue")
+   
+    })
+    .on('mouseout', function(d, i){
+      tooltip.transition().delay(1000).style("opacity", 0);
+    })
+    .transition().duration(3000 )
+      .attr("cx", function (d, i){return xs(d.price);})
+      .attr("cy", function (d,i){return ys(d.horsepower);})
+   
+    ;
+d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+50+","+50+")")
+    .call(d3.axisLeft(ys).tickValues([50, 100, 150, 200, 250, 300]).tickFormat(d3.format("~s")))
+    ;
+d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+50+","+(450)+")")
+    .call(d3.axisBottom(xs).tickValues([10000, 20000, 30000, 40000, 50000]).tickFormat(d3.format("~s")))
+     ;
+
+d3.select("svg").append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", 200)
+    .attr("y", 490)
+    .style("text-anchor", "middle")
+    .text("Price");
+
+d3.select("svg").append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("x", -200)
+    .style("text-anchor", "middle")
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Horse Power");   
+
+
+    
+}
+
+
+async function init() {
+
+const data = await d3.csv('https://raw.githubusercontent.com/VaijanathB/vj.github.io/master/automobile-dataset/Automobile_data.csv')
+
+var horsepower = data.map(function(d){return d.horsepower}).map(Number);
+var AvgHwyMpg = data.map(function(d){return d.highwaympg}).map(Number);
+
+var cylinders = data.map(function(d){return d.highwaympg}).map(Number);
+
+
+xdomain = [30, 300];
+ydomain = [5, 100];
+
+xs = d3.scaleLog().base(10).domain(xdomain).range([0, 400]);
+ys = d3.scaleLog().base(10).domain(ydomain).range([400, 0]);
+
+
+const radius = data.map(function(d){return d.EngineCylinders;}); 
+const radius2 = radius.map(Number);
+const radiusplustwo = radius2.map(function addtwo(number){
+    return number + 2;
+    });
+console.log(radius);
+console.log(radiusplustwo);
+var margin = 50
+
+var height = 
+console.log("Initcalled")
+
+  d3.select("svg").selectAll("*").remove();
+  var tooltip = d3.select("#tooltip");
+
+d3.selectAll("svg").append("g")
+.attr("transform", "translate("+margin+","+margin+")")
+.selectAll("circle")
+.data(data)
+.enter()
+.append("circle")
+.attr("cx", function (d, i){return xs(d.horsepower);})
+.attr("cy", 50)
+.attr("r", function(d, i){return  radiusplustwo[i] ;})
+.on('mouseover', function (d, i) {
+      tooltip.html(
+				 "Make :"+d.make+" Highway MPG :"+d.highwaympg)	 
+         .style("opacity", 1)
+         .style("display", "block")
+				.style("left", (d3.event.pageX) + "px")			 
+				.style("top", (d3.event.pageY) + "px")
+        .style("background", "lightblue")
+   
+    })
+    .on('mouseout', function(d, i){
+      tooltip.transition().delay(1000).style("opacity", 0);
+    })
+    .transition().duration(3000 )
+    .attr("cx", function (d, i){return xs(d.horsepower);})
+    .attr("cy", function (d,i){return ys(d.highwaympg);})
+   
+    ;
+d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+50+","+50+")")
+    .call(d3.axisLeft(ys).tickValues([10, 20, 50, 100]).tickFormat(d3.format("~s")))
+    ;
+d3.selectAll("svg").append("g")
+    .attr("transform", "translate("+50+","+(450)+")")
+    .call(d3.axisBottom(xs).tickValues([50, 100, 150, 200, 250, 300]).tickFormat(d3.format("~s")))
+     ;
+    
+
+d3.select("svg").append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", 200)
+    .attr("y", 490)
+    .style("text-anchor", "middle")
+    .text("Horsepower vs Average Highway MPG");
+
+d3.select("svg").append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("x", -200)
+    .style("text-anchor", "middle")
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Average Highway MPG");   
+
+}
+
+</script>
+</body>
+</html>
